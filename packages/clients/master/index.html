@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <h1>Wizard</h1>
+    <ul id="l">
+    </ul>
+
+    <script>
+        var l = document.getElementById('l');
+        const log = function (m) {
+            var i = document.createElement('li');
+            i.innerText = new Date().toISOString() + ' ' + m;
+            l.appendChild(i);
+        }
+
+        var s = new WebSocket('ws://' + window.location.host + '/');
+
+        s.addEventListener('error', function (err) { log("error", err); });
+        s.addEventListener('open', function (m) { log("websocket connection open"); s.send(JSON.stringify({ action: 'register', type: "wizard" })); });
+        s.addEventListener('message', function (m) {
+            const data = JSON.parse(m.data);
+
+            log(m.data)
+
+            if (data.action === 'interaction') {
+                if (data.target === 'change-background-color') {
+                    changeBackgroundColor(data.value);
+                }
+            }
+        });
+
+        function sendBackgroundColor() {
+            if (s.readyState === 1) {
+                const msg = { action: 'interaction', target: 'change-background-color' }
+                s.send(JSON.stringify(msg))
+            }
+        }
+
+        function changeBackgroundColor(value) {
+            document.body.style.background = '#' + value;
+        }
+    </script>
+
+    <button onclick="sendBackgroundColor()"> changeBackgroundColor </button>
+</body>
+
+</html>

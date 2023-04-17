@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <h1>Slave</h1>
+
+    <script>
+        var s = new WebSocket('ws://' + window.location.host + '/');
+
+        s.addEventListener('error', function (err) { console.error("error", err); });
+        s.addEventListener('open', function (m) { console.log("websocket connection open"); s.send(JSON.stringify({ action: 'register', type: "slave" })); });
+        s.addEventListener('message', function (m) {
+            const data = JSON.parse(m.data);
+
+            if (data.action === 'interaction') {
+                if (data.target === 'change-background-color') {
+                    changeBackgroundColor(data.value);
+                }
+            }
+        });
+
+        function changeBackgroundColor(value) {
+            document.body.style.background = '#' + value;
+        }
+
+    </script>
+</body>
+
+</html>
